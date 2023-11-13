@@ -1,10 +1,15 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 
 // Structure to hold user information
 struct User {
     char username[100];
     char password[100];
+    union {
+        bool flag;
+        int num;
+    } login;
 };
 
 // Function to register a new user
@@ -13,8 +18,23 @@ void registerUser(struct User users[], int *count) {
     scanf("%s", users[*count].username);
     printf("Enter password: ");
     scanf("%s", users[*count].password);
+    printf("Enter 1 or 0 or true or false to set login flag: ");
+    char input[6];
+    scanf("%s", input);
+    if (strcmp(input, "true") == 0 || strcmp(input, "1") == 0) {
+        users[*count].login.flag = true;
+        users[*count].login.num = 1;
+    } else if (strcmp(input, "false") == 0 || strcmp(input, "0") == 0) {
+        users[*count].login.flag = false;
+        users[*count].login.num = 0;
+    } else {
+        printf("Invalid input. Login flag set to false.\n");
+        users[*count].login.flag = false;
+        users[*count].login.num = 0;
+    }
     *count += 1;
 }
+
 // Function to login a user
 int loginUser(struct User users[], int count) {
     char username[100];
@@ -26,8 +46,13 @@ int loginUser(struct User users[], int count) {
 
     for (int i = 0; i < count; i++) {
         if (strcmp(username, users[i].username) == 0 && strcmp(password, users[i].password) == 0) {
-            printf("Login successful. Welcome, %s!\n", users[i].username);
-            return 1;
+            if (users[i].login.flag) {
+                printf("Login successful. Welcome, %s!\n", users[i].username);
+                return 1;
+            } else {
+                printf("Login failed. You are not authorized to login.\n");
+                return 0;
+            }
         }
     }
 
